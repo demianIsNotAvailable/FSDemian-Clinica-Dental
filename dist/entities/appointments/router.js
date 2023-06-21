@@ -12,8 +12,7 @@ router.post("/", auth, async (req, res, next) => {
 });
 router.get("/", async (req, res, next) => {
     try {
-        const appointments = await listAppointments(req.body.start?.toString(), req.body.end?.toString(), req.payload?.id);
-        res.json(appointments);
+        res.json(await listAppointments(req.body.start?.toString(), req.body.end?.toString(), req.payload?.id));
     }
     catch (e) {
         next(e);

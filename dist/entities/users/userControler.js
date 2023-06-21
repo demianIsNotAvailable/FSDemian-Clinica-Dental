@@ -49,17 +49,15 @@ export const findUsersByRole = async (role) => {
 export const updateUser = async (data, token) => {
     if (data.password && (data.password.length < 6 || data.password.length > 12))
         throw new Error("INVALID_PASSWORD");
-    data.password = await bcrypt.hash(data.password, config.HASH_ROUNDS);
+    if (data.password)
+        data.password = await bcrypt.hash(data.password, config.HASH_ROUNDS);
     if (token.role !== "ADMIN") {
         return await User.findByIdAndUpdate({ _id: token.id }, {
-            email: data.data.email,
-            phone: data.data.phone,
-            password: data.data.password,
+            email: data.email,
+            phone: data.phone,
+            password: data.password,
         }, { new: true });
     }
-    const user = await User.findOne({ email: data.email });
-    if (!user)
-        throw new Error("NOT_FOUND");
     return await User.findOneAndUpdate({ email: data.email }, data, {
         new: true,
     });
