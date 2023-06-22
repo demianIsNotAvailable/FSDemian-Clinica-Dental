@@ -42,12 +42,16 @@ export const updateAppointment = async (data, token) => {
     token.role !== "ADMIN"
   )
     throw new Error("NOT_AUTHORIZED");
+
+  if(data.active === false) 
+    return await Appointment.findOneAndUpdate({_id: data.id}, {active: false}, {new: true})
+
   const updatedValues = (({ start, end, doctor }) => ({ start, end, doctor }))(
     data
   );
   const overlap = await listAppointments(data.start, data.end, data.doctor);
   if (overlap.length) throw new Error("DUPLICATED_DATE");
-  return Appointment.findOneAndUpdate({ _id: data.id }, updatedValues, {
+   return Appointment.findOneAndUpdate({ _id: data.id }, updatedValues, {
     new: true,
   });
 };

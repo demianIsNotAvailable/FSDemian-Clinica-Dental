@@ -32,6 +32,8 @@ export const updateAppointment = async (data, token) => {
     if (token.id !== appointment.client && token.id !== appointment.doctor &&
         token.role !== "ADMIN")
         throw new Error("NOT_AUTHORIZED");
+    if (data.active === false)
+        return await Appointment.findOneAndUpdate({ _id: data.id }, { active: false }, { new: true });
     const updatedValues = (({ start, end, doctor }) => ({ start, end, doctor }))(data);
     const overlap = await listAppointments(data.start, data.end, data.doctor);
     if (overlap.length)

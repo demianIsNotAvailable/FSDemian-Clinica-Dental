@@ -8,7 +8,6 @@ const userRouter = express.Router()
 // create user endpoint
 userRouter.post('/', async(req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log(req)
         res.json(await createUser(req.body))
     } catch(e){
         next(e)

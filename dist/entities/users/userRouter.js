@@ -5,7 +5,6 @@ const userRouter = express.Router();
 // create user endpoint
 userRouter.post('/', async (req, res, next) => {
     try {
-        console.log(req);
         res.json(await createUser(req.body));
     }
     catch (e) {
