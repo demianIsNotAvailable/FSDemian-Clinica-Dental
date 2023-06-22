@@ -18,11 +18,14 @@ export const createAppointment = async (data: IAppointment, token) => {
 export const listAppointments = async (
   start?: String,
   end?: String,
-  id?: string
+  token?: any
 ) => {
+  if (token.role === "ADMIN") return Appointment.find({}).populate("client").populate("doctor");
+
   const filter: any = { $and: [{ active: true }] };
 
-  if (id) filter.$and.push({ $or: [{ client: id }, { doctor: id }] });
+  if (token.id)
+    filter.$and.push({ $or: [{ client: token.id }, { doctor: token.id }] });
   if (start && !end) filter.$and.push({ end: { $gte: start } });
   if (end && !start) filter.$and.push({ start: [{ $lte: end }] });
   if (start && end)
@@ -31,11 +34,11 @@ export const listAppointments = async (
   return Appointment.find(filter).populate("client").populate("doctor");
 };
 
-export const updateAppointment = async (appID, data, token) => {
-  const appointment = await Appointment.findOne({ _id: appID });
+export const updateAppointment = async (data, token) => {
+  const appointment = await Appointment.findOne({ _id: data.id });
   if (!appointment) throw new Error("NOT_FOUND");
   if (
-    (token.id !== appointment.client || token.id !== appointment.doctor) &&
+    token.id !== appointment.client && token.id !== appointment.doctor &&
     token.role !== "ADMIN"
   )
     throw new Error("NOT_AUTHORIZED");
@@ -44,7 +47,9 @@ export const updateAppointment = async (appID, data, token) => {
   );
   const overlap = await listAppointments(data.start, data.end, data.doctor);
   if (overlap.length) throw new Error("DUPLICATED_DATE");
-  return Appointment.findOneAndUpdate({ _id: appID }, updatedValues, { new: true });
+  return Appointment.findOneAndUpdate({ _id: data.id }, updatedValues, {
+    new: true,
+  });
 };
 
 export const deleteAppointment = async (appID, token) => {

@@ -11,10 +11,12 @@ export const createAppointment = async (data, token) => {
         throw new Error("DUPLICATED_DATE");
     return Appointment.create(data);
 };
-export const listAppointments = async (start, end, id) => {
+export const listAppointments = async (start, end, token) => {
+    if (token.role === "ADMIN")
+        return Appointment.find({}).populate("client").populate("doctor");
     const filter = { $and: [{ active: true }] };
-    if (id)
-        filter.$and.push({ $or: [{ client: id }, { doctor: id }] });
+    if (token.id)
+        filter.$and.push({ $or: [{ client: token.id }, { doctor: token.id }] });
     if (start && !end)
         filter.$and.push({ end: { $gte: start } });
     if (end && !start)
@@ -23,18 +25,20 @@ export const listAppointments = async (start, end, id) => {
         filter.$and.push({ end: { $gte: start } }, { start: { $lte: end } });
     return Appointment.find(filter).populate("client").populate("doctor");
 };
-export const updateAppointment = async (appID, data, token) => {
-    const appointment = await Appointment.findOne({ _id: appID });
+export const updateAppointment = async (data, token) => {
+    const appointment = await Appointment.findOne({ _id: data.id });
     if (!appointment)
         throw new Error("NOT_FOUND");
-    if ((token.id !== appointment.client || token.id !== appointment.doctor) &&
+    if (token.id !== appointment.client && token.id !== appointment.doctor &&
         token.role !== "ADMIN")
         throw new Error("NOT_AUTHORIZED");
     const updatedValues = (({ start, end, doctor }) => ({ start, end, doctor }))(data);
     const overlap = await listAppointments(data.start, data.end, data.doctor);
     if (overlap.length)
         throw new Error("DUPLICATED_DATE");
-    return Appointment.findOneAndUpdate({ _id: appID }, updatedValues, { new: true });
+    return Appointment.findOneAndUpdate({ _id: data.id }, updatedValues, {
+        new: true,
+    });
 };
 export const deleteAppointment = async (appID, token) => {
     const appointment = await Appointment.findOne({ _id: appID });

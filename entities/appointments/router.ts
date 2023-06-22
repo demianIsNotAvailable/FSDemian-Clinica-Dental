@@ -12,17 +12,17 @@ router.post("/", auth, async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/", auth, async (req, res, next) => {
   try {
-    res.json(await listAppointments(req.body.start?.toString(), req.body.end?.toString(), req.payload?.id,));
+    res.json( await listAppointments(req.query?.start as String, req.query?.end as String, req.payload));  
   } catch (e) {
     next(e);
   }
 });
 
-router.patch('/:id', auth, async (req, res, next) =>{
+router.patch('/', auth, async (req, res, next) =>{
   try {
-    res.json(await updateAppointment(req.params.id, req.body, req.payload))
+    res.json(await updateAppointment(req.body, req.payload))
   } catch (e) {
     next(e)
   }

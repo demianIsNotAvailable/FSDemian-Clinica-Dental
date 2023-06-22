@@ -52,8 +52,7 @@ userRouter.put('/',auth, async (req: Request, res: Response, next: NextFunction)
     }
 })
 
-// list users by role (admin)
-userRouter.get('/', auth, isAdminCheck, async (req: Request, res: Response, next: NextFunction) => {
+userRouter.get('/', auth, async (req: Request, res: Response, next: NextFunction) => {
     try {
         res.json(await findUsersByRole(req.query.role))
     } catch(e){

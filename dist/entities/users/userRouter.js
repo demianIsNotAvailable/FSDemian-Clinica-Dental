@@ -1,6 +1,6 @@
 import express from "express";
 import { createUser, login, updateUser, findUserById, findUsersByRole, findUsers } from "./userControler.js";
-import { auth, errorHandler, isAdminCheck } from "../../core/middlewares.js";
+import { auth, errorHandler } from "../../core/middlewares.js";
 const userRouter = express.Router();
 // create user endpoint
 userRouter.post('/', async (req, res, next) => {
@@ -47,8 +47,7 @@ userRouter.put('/', auth, async (req, res, next) => {
         next(e);
     }
 });
-// list users by role (admin)
-userRouter.get('/', auth, isAdminCheck, async (req, res, next) => {
+userRouter.get('/', auth, async (req, res, next) => {
     try {
         res.json(await findUsersByRole(req.query.role));
     }
