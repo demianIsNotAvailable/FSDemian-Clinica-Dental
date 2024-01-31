@@ -21,8 +21,8 @@ const corsOptions = {
     allowedHeaders: "Origin,X-Requested-With,Content-Type,Accept,Authorization"
 };
 app.use(express.json());
-app.get('/', (req, res) => res.send('Healthcheck: ok'));
 app.use(cors(corsOptions));
+app.get('/', (req, res) => res.send('Healthcheck: ok'));
 app.use('/user', userRouter);
 app.use('/appointments', appRouter);
 app.listen(config.PORT, () => console.log(`Server listening at: ${config.PORT}`));
